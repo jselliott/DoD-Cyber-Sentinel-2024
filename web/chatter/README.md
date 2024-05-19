@@ -1,8 +1,8 @@
-# LinkU (Medium)
+# Chatter (Hard)
 
 A CTFd compatible docker image for a web challenge. Scenario:
 
-I've been working on developing a new social network specifically for Cybersecurity Professionals. However, it keeps getting hacked (ironic, eh?). Can you find how the hackers seem to be able to access the admin area so easily?
+ChatterBawks is the coolest new end-to-end encrypted chat app. But is it really totally safe to use?
 
 ## Setup
 
@@ -10,21 +10,10 @@ Run the included build-docker.sh script to build and deploy the container in doc
 
 ## Solution
 
-This medium level challenge will prompt the player to examine the provided source code to try to find the vulnerability that will allow them to escalate their priveleges. The site has a pretty small set of features. These include a registration and login page which is secured with a signed JWT token, a simple dashboard page, and a restricted admin page. The only other implemented feature is a simple button to switch the theme of the site between light and dark.
+This challenge is an end-to-end encrypted chat app with a Vue.JS frontend and a Golang backend server. On load, the browser generates a new RSA keypair and registers the user with the server via websocket and transmits their public key. The admin user then sends them a welcome message which is encrypted using AES-128-CFB and then sent along with the AES key which is encrypted using the user’s public RSA key. On the receiving end, the browser will decrypt the message key using the RSA private key, and then decrypt the message itself and display it.
 
-Clever players will notice that when the user logs in, the preferences JSON object in the database is loaded and then merged into the user object that is returned:
+By examining the flow of messages in the websocket connection, they may start poking and prodding and trying different things but the key is to take the UUID for the admin user and send a command to subscribe to messages for that UUID instead of their own. Then they start seeing a new chat pop up from FlagBot every few seconds but they are unable to decrypt the messages.
 
-```python
-# User claims
-claims = {'username': user.username,
-            'user_level': user.user_level,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}
+The next step is to send an “update public key” command via the websocket but insert the UUID of the admin user and their own public key. This will mean that future messages to the admin user will be encrypted using the PLAYER’s public key instead of the real admin.
 
-# Load display preferences
-preferences = json.loads(base64.b64decode(user.preferences))
-claims.update(preferences)
-```
-
-This small detail calling the update() function means that dictionary keys from the preferences object will overwrite the ones in the claims dictionary if there is a conflict. This means that by modifying the payload from the theme setter to include a JWT claim such as "user_level", the player is able to store their desired level in the database. Then simply log out and log back in to get a new token which includes the overwritten value, giving them admin access.
-
-Browsing to /admin, they are presented with the flag.
+After waiting 10 or so seconds, the player sees a message from FlagBot which is decrypted correctly and displayed in their chat window with the flag.
