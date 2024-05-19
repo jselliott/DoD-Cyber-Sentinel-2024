@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "types.h": "c",
+        "castle_tiles.h": "c",
+        "wizard_tiles.h": "c",
+        "stdint.h": "c",
+        "maps.h": "c",
+        "gb.h": "c",
+        "castle_bg.h": "c",
+        "player.h": "c",
+        "entry_tiles.h": "c",
+        "entry.h": "c",
+        "black_bg.h": "c"
+    }
+}
