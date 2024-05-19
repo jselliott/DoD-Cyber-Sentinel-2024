@@ -1,1 +1,1 @@
-export const socket =  new WebSocket("wss://dodcybersentinel-web-chatter.chals.io/ws");
+export const socket =  new WebSocket("ws://localhost:1337/ws");
